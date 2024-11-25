@@ -14,11 +14,13 @@ db = SQLAlchemy(app)
 
 # Modelos
 class Pergunta(db.Model):
+    __tablename__ = 'pergunta'  # Definindo o nome da tabela explicitamente
     id = db.Column(db.Integer, primary_key=True)
     texto = db.Column(db.String(200), nullable=False)
     explicacao = db.Column(db.String(200), nullable=False)
 
 class Resposta(db.Model):
+    __tablename__ = 'resposta'  # Definindo o nome da tabela explicitamente
     id = db.Column(db.Integer, primary_key=True)
     texto = db.Column(db.String(100), nullable=False)
     correta = db.Column(db.Boolean, default=False)
