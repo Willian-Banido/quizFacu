@@ -6,7 +6,7 @@ import click
 app = Flask(__name__)
 
 # Configure o URI do banco de dados
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://quizfacu_hk78_user:jTLu0KH9D1BduGFy0zcEutiNbn0ZjsXN@dpg-ct1tt4dumphs738s8tpg-a.oregon-postgres.render.com/quizfacu_hk78'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://quizfacu_bpxn_user:fp3CgotGhuTTI1RbRCUatgCqPtVGhqh0@dpg-ct1u1au8ii6s73fj4v40-a.oregon-postgres.render.com/quizfacu_bpxn'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Inicializa o banco de dados
