@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss-jit-cdn"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-r from-blue-200 to-blue-400 h-screen flex justify-center items-center">
+
+    <div class="w-full md:w-2/3 lg:w-1/2 xl:w-1/3 bg-white p-6 rounded-lg shadow-lg">
+        <!-- Título do Quiz -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Quiz: Teste seus conhecimentos!</h1>
+            <p class="text-gray-600 mt-2">Responda às perguntas abaixo e veja suas explicações!</p>
+        </div>
+
+        <!-- Caixa de Pergunta -->
+        <div id="question-box" class="mb-6">
+            <h2 id="question-text" class="text-xl font-semibold text-gray-800 mb-4">Pergunta carrega aqui...</h2>
+            <ul id="answers-list" class="space-y-4"></ul>
+        </div>
+
+        <!-- Feedback (após resposta) -->
+        <div id="feedback-box" class="hidden">
+            <div class="bg-gray-100 p-4 rounded-md mb-4">
+                <p id="feedback-text" class="text-lg text-gray-700"></p>
+            </div>
+            <button id="next-question" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300">
+                Próxima Pergunta
+            </button>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script>
+        let currentQuestionIndex = 0;
+        let questions = [];
+
+        // Função para carregar as perguntas do backend
+        async function loadQuiz() {
+            const response = await fetch('/quiz-data');
+            questions = await response.json();
+            displayQuestion();
+        }
+
+        // Exibe a pergunta atual
+        function displayQuestion() {
+            const question = questions[currentQuestionIndex];
+            const questionText = document.getElementById('question-text');
+            const answersList = document.getElementById('answers-list');
+            
+            questionText.textContent = question.texto;
+            answersList.innerHTML = '';
+            
+            question.respostas.forEach((resposta, index) => {
+                const answerItem = document.createElement('li');
+                answerItem.classList.add('border', 'rounded-lg', 'p-4', 'cursor-pointer', 'hover:bg-blue-100', 'transition', 'duration-300');
+                answerItem.textContent = resposta.texto;
+                answerItem.onclick = () => handleAnswerClick(resposta, question);
+                answersList.appendChild(answerItem);
+            });
+        }
+
+        // Lida com a escolha da resposta
+        function handleAnswerClick(resposta, pergunta) {
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackText = document.getElementById('feedback-text');
+            const nextButton = document.getElementById('next-question');
+
+            // Exibe a explicação
+            feedbackText.textContent = resposta.correta ? 'Resposta correta!' : `Resposta incorreta. Explicação: ${pergunta.explicacao}`;
+            feedbackBox.classList.remove('hidden');
+            nextButton.onclick = () => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    displayQuestion();
+                    feedbackBox.classList.add('hidden');
+                } else {
+                    alert("Você completou o quiz!");
+                    // Aqui pode adicionar lógica de finalização do quiz
+                }
+            };
+        }
+
+        // Inicializa o quiz
+        loadQuiz();
+    </script>
+</body>
+</html>
