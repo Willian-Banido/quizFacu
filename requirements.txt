@@ -1,3 +1,4 @@
 Flask
 Flask-SQLAlchemy
-gunicorn==20.x.x
+gunicorn
+
