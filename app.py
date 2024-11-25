@@ -50,7 +50,7 @@ def salvar_perguntas():
     for item in data:
         pergunta = Pergunta(texto=item['texto'], explicacao=item['explicacao'])
         db.session.add(pergunta)
-        db.session.flush()
+        db.session.flush()  # Assegura que o ID da pergunta seja gerado antes de salvar as respostas
         for resp in item['respostas']:
             resposta = Resposta(texto=resp['texto'], correta=resp['correta'], pergunta_id=pergunta.id)
             db.session.add(resposta)
@@ -64,11 +64,10 @@ def remover_todas_perguntas():
     db.session.commit()  # Salva as alterações
     return jsonify({"message": "Todas as perguntas foram removidas com sucesso!"}), 200
 
-
-# Inicializar o banco de dados
+# Inicializar o banco de dados ao rodar a aplicação
 @app.before_first_request
 def create_tables():
-    db.create_all()
+    db.create_all()  # Cria as tabelas no banco de dados
 
 if __name__ == '__main__':
     app.run(debug=True)
