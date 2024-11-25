@@ -4,7 +4,7 @@ from flask.cli import with_appcontext
 import click
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://quizfacu_user:kxzN4ANvsWP1ke71KyENLW3HioJ2Ncn3@dpg-ct1tktdumphs738s7rgg-a.oregon-postgres.render.com/quizfacu'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
