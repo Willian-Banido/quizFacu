@@ -4,8 +4,12 @@ from flask.cli import with_appcontext
 import click
 
 app = Flask(__name__)
+
+# Configure o URI do banco de dados
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://quizfacu_user:kxzN4ANvsWP1ke71KyENLW3HioJ2Ncn3@dpg-ct1tktdumphs738s7rgg-a.oregon-postgres.render.com/quizfacu'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Inicializa o banco de dados
 db = SQLAlchemy(app)
 
 # Modelos
@@ -49,29 +53,42 @@ def get_quiz_data():
 @app.route('/gerenciar', methods=['POST'])
 def salvar_perguntas():
     data = request.json
-    for item in data:
-        pergunta = Pergunta(texto=item['texto'], explicacao=item['explicacao'])
-        db.session.add(pergunta)
-        db.session.flush()  # Assegura que o ID da pergunta seja gerado antes de salvar as respostas
-        for resp in item['respostas']:
-            resposta = Resposta(texto=resp['texto'], correta=resp['correta'], pergunta_id=pergunta.id)
-            db.session.add(resposta)
-    db.session.commit()
-    return jsonify({"message": "Perguntas salvas com sucesso!"})
+    try:
+        for item in data:
+            pergunta = Pergunta(texto=item['texto'], explicacao=item['explicacao'])
+            db.session.add(pergunta)
+            db.session.flush()  # Assegura que o ID da pergunta seja gerado antes de salvar as respostas
+            for resp in item['respostas']:
+                resposta = Resposta(texto=resp['texto'], correta=resp['correta'], pergunta_id=pergunta.id)
+                db.session.add(resposta)
+        db.session.commit()
+        return jsonify({"message": "Perguntas salvas com sucesso!"}), 200
+    except Exception as e:
+        db.session.rollback()  # Reverte a transação em caso de erro
+        return jsonify({"message": "Erro ao salvar as perguntas.", "error": str(e)}), 500
 
 # Rota para remover todas as perguntas
 @app.route('/remover-todas-perguntas', methods=['DELETE'])
 def remover_todas_perguntas():
-    Pergunta.query.delete()  # Remove todas as perguntas
-    db.session.commit()  # Salva as alterações
-    return jsonify({"message": "Todas as perguntas foram removidas com sucesso!"}), 200
+    try:
+        Pergunta.query.delete()  # Remove todas as perguntas
+        db.session.commit()  # Salva as alterações
+        return jsonify({"message": "Todas as perguntas foram removidas com sucesso!"}), 200
+    except Exception as e:
+        db.session.rollback()  # Reverte a transação em caso de erro
+        return jsonify({"message": "Erro ao remover as perguntas.", "error": str(e)}), 500
 
 # Inicializar o banco de dados ao rodar a aplicação
 @app.cli.command('init-db')
 @with_appcontext
 def init_db():
     """Cria as tabelas no banco de dados."""
-    db.create_all()
+    try:
+        db.create_all()  # Cria todas as tabelas
+        print("Tabelas criadas com sucesso!")
+    except Exception as e:
+        print(f"Erro ao criar as tabelas: {str(e)}")
 
+# Executando a aplicação
 if __name__ == '__main__':
     app.run(debug=True)
