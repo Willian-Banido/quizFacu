@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask.cli import with_appcontext
+import click
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -65,9 +67,11 @@ def remover_todas_perguntas():
     return jsonify({"message": "Todas as perguntas foram removidas com sucesso!"}), 200
 
 # Inicializar o banco de dados ao rodar a aplicação
-@app.before_first_request
-def create_tables():
-    db.create_all()  # Cria as tabelas no banco de dados
+@app.cli.command('init-db')
+@with_appcontext
+def init_db():
+    """Cria as tabelas no banco de dados."""
+    db.create_all()
 
 if __name__ == '__main__':
     app.run(debug=True)
